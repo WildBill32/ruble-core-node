@@ -1,0 +1,43 @@
+name: Inspect public Ruble branding images
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-ruble-brand.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Inspect image identity and colors
+        run: |
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          import base64, hashlib, io, urllib.request
+          from PIL import Image
+          urls={
+             'SITE':'https://rublecore.org/ruble-logo.png',
+             'RELEASES':'https://raw.githubusercontent.com/WildBill32/ruble-core-releases/main/assets/ruble.png',
+             'WEB_WALLET':'https://wallet.rublecore.org/brand/ruble-logo-144.webp',
+          }
+          for name,url in urls.items():
+              try:
+                  req=urllib.request.Request(url,headers={'User-Agent':'RubleCoreImageAudit/1.0'})
+                  with urllib.request.urlopen(req,timeout=20) as response:
+                      raw=response.read(3_000_000)
+                  im=Image.open(io.BytesIO(raw)).convert('RGB')
+                  thumbnail=im.resize((64,64))
+                  png=io.BytesIO()
+                  thumbnail.save(png,format='PNG',optimize=True)
+                  p=list(im.resize((200,200)).getdata())
+                  counts={'blue':0,'yellow':0,'red':0}
+                  for r,g,b in p:
+                      if b>r*1.35 and b>g*1.15 and b>100: counts['blue']+=1
+                      if r>150 and g>60 and r>g*1.24 and g>b*1.7: counts['yellow']+=1
+                      if r>100 and r>g*1.6 and r>b*1.6: counts['red']+=1
+                  print(name, 'size',im.size,'bytes',len(raw),'sha256',hashlib.sha256(raw).hexdigest(),'colors',counts)
+                  print('THUMB_'+name+'='+base64.b64encode(png.getvalue()).decode('ascii'))
+              except Exception as exc:
+                  print(name,'ERROR',repr(exc))
+          PY
