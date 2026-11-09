@@ -1,0 +1,147 @@
+name: Update Ruble Core official wallet branding
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/update-official-logo.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  branding:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Replace outdated icon assets with verified official multicolor Ruble logo
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          from pathlib import Path
+          import io, urllib.request, hashlib, json, base64, string, zipfile, re, collections
+          from PIL import Image
+          url='https://rublecore.org/ruble-logo.png'
+          expected='1610e188db939c7a0e3d52e1801935449873b96d95e7445a44e17d2f56307e7e'
+          req=urllib.request.Request(url,headers={'User-Agent':'RubleCoreBrandSource/1.0'})
+          with urllib.request.urlopen(req, timeout=30) as response:
+              raw=response.read(2000000)
+          if hashlib.sha256(raw).hexdigest()!=expected:
+              raise SystemExit('STOP: official logo has changed; review required')
+          original=Image.open(io.BytesIO(raw)).convert('RGBA')
+          if original.size!=(500,500):
+              raise SystemExit('STOP: unexpected logo size')
+          p=list(original.resize((200,200)).convert('RGB').getdata())
+          counts={
+           'blue':sum(b>r*1.35 and b>g*1.15 and b>100 for r,g,b in p),
+           'yellow':sum(r>150 and g>60 and r>g*1.24 and g>b*1.7 for r,g,b in p),
+           'red':sum(r>100 and r>g*1.6 and r>b*1.6 for r,g,b in p),
+          }
+          if any(x<600 for x in counts.values()):
+              raise SystemExit('STOP: image not consistent with new multicolor brand logo')
+
+          def dest_image(path, size):
+              image=original.resize((size,size),Image.Resampling.LANCZOS)
+              image.save(path,format='PNG',optimize=True)
+              print('Updated',path)
+
+          for dim in (16,32,64,128,256):
+              dest_image('share/pixmaps/ruble%d.png'%dim,dim)
+          dest_image('src/qt/res/icons/ruble.png',500)
+
+          # Icon containers for mainnet only; testnet/signet variants remain separate.
+          ico=original.resize((256,256),Image.Resampling.LANCZOS)
+          for path in ('share/pixmaps/ruble.ico','src/qt/res/icons/ruble.ico'):
+              ico.save(path,format='ICO',sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
+              print('Updated',path)
+          original.resize((1024,1024),Image.Resampling.LANCZOS).save('src/qt/res/icons/ruble.icns',format='ICNS')
+          print('Updated src/qt/res/icons/ruble.icns')
+
+          # Generate XPM variants with the historical public symbol names.
+          alphabet=''.join(ch for ch in string.ascii_letters+string.digits+'!@#$%^&*()-_=+[]{};:,./?~' if ch not in ('"','\\'))
+          def write_xpm(dim):
+              img=original.resize((dim,dim),Image.Resampling.LANCZOS)
+              rgb=Image.new('RGBA',img.size,(0,0,0,0))
+              rgb.alpha_composite(img)
+              quant=rgb.convert('RGB').quantize(colors=255,method=Image.Quantize.MEDIANCUT)
+              pal=quant.getpalette()
+              index=quant.load()
+              codes=[a+b for a in alphabet for b in alphabet][:256]
+              entries=[]
+              for i in range(255):
+                  entries.append('"%s c #%02X%02X%02X",'%(codes[i],pal[i*3],pal[i*3+1],pal[i*3+2]))
+              # Preserve the shape transparency for native icon rendering.
+              entries.append('"%s c None",'%codes[255])
+              pixels=[]
+              a=img.getchannel('A')
+              for y in range(dim):
+                  line=''.join(codes[255] if a.getpixel((x,y))<32 else codes[index[x,y]] for x in range(dim))
+                  pixels.append('"'+line+'",')
+              out='/* XPM */\nstatic const char *ruble%d[] = {\n"%d %d 256 2",\n'%(dim,dim,dim)
+              out+='\n'.join(entries)+'\n'+'\n'.join(pixels)+'\n};\n'
+              Path('share/pixmaps/ruble%d.xpm'%dim).write_text(out)
+              print('Updated share/pixmaps/ruble%d.xpm'%dim)
+          for dim in (16,32,64,128,256):
+              write_xpm(dim)
+
+          # Embed the exact approved logo rather than draw an inaccurate vector stand-in.
+          thumb=io.BytesIO()
+          original.resize((256,256),Image.Resampling.LANCZOS).save(thumb,format='PNG',optimize=True)
+          encoded=base64.b64encode(thumb.getvalue()).decode('ascii')
+          Path('src/qt/res/src/ruble.svg').write_text(
+             '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+             'width="256" height="256" viewBox="0 0 256 256">'
+             '<image width="256" height="256" xlink:href="data:image/png;base64,'+encoded+'"/>'
+             '</svg>\n'
+          )
+          print('Updated src/qt/res/src/ruble.svg')
+
+          # Recompute the signed-off list so integration/verify-source.py remains usable.
+          manifest_path=Path('integration/source-baseline.json')
+          manifest=json.loads(manifest_path.read_text())
+          updated=0
+          for item in manifest['entries']:
+              path=Path(item['path'])
+              now=hashlib.sha256(path.read_bytes()).hexdigest()
+              if item['sha256']!=now:
+                  item['sha256']=now
+                  updated+=1
+          if updated!=15:
+              raise SystemExit('STOP: unexpected changed source-file count: %d'%updated)
+          manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
+          print('Updated 15 branding files in source manifest')
+
+          # Keep the distributable ZIP synchronized with the GitHub source and manifest.
+          archive=Path('RUBLE-INTEGRATION-20260908-R1.zip')
+          tmp=archive.with_suffix('.new.zip')
+          root='ruble-core-source/'
+          with zipfile.ZipFile(tmp,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for item in manifest['entries']:
+                  path=Path(item['path'])
+                  zi=zipfile.ZipInfo(root+item['path'])
+                  zi.create_system=3
+                  zi.external_attr=(int(item['mode'],8)<<16)
+                  zi.compress_type=zipfile.ZIP_DEFLATED
+                  z.writestr(zi,path.read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
+              zi=zipfile.ZipInfo(root+'integration/source-baseline.json')
+              zi.create_system=3
+              zi.external_attr=(0o100644<<16)
+              zi.compress_type=zipfile.ZIP_DEFLATED
+              z.writestr(zi,manifest_path.read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
+          tmp.replace(archive)
+          sha=hashlib.sha256(archive.read_bytes()).hexdigest()
+          workflow=Path('.github/workflows/publish-source-from-zip.yml')
+          script=workflow.read_text()
+          replacement="expected_hash = \""+sha+"\""
+          script,n=re.subn(r'expected_hash = "[a-f0-9]{64}"',lambda m:replacement,script)
+          if n!=1:
+              raise SystemExit('STOP: original ZIP publication workflow checksum not found')
+          workflow.write_text(script)
+          print('New public archive checksum:',sha)
+          PY
+          python -B integration/verify-source.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A share/pixmaps src/qt/res/icons/ruble.png src/qt/res/icons/ruble.ico src/qt/res/icons/ruble.icns src/qt/res/src/ruble.svg integration/source-baseline.json RUBLE-INTEGRATION-20260908-R1.zip .github/workflows/publish-source-from-zip.yml
+          git commit -m "Replace legacy Ruble Core artwork with official multicolor logo"
+          git push origin HEAD:main
