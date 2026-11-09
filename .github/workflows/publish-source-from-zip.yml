@@ -1,0 +1,95 @@
+name: Publish verified Ruble Core source
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - RUBLE-INTEGRATION-20260908-R1.zip
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ruble-publish-source
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Verify and extract the official source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path, PurePosixPath
+          from zipfile import ZipFile
+
+          archive = Path("RUBLE-INTEGRATION-20260908-R1.zip")
+          expected_hash = "50f7f54f6aa6d1c8750dcf4c3e3756fdcef1e1ad9b7ab741afce8ea5299474e7"
+          if not archive.is_file():
+              raise SystemExit("ERROR: upload RUBLE-INTEGRATION-20260908-R1.zip first")
+          actual_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
+          if actual_hash != expected_hash:
+              raise SystemExit(f"ERROR: unexpected archive checksum: {actual_hash}")
+
+          root = "ruble-core-source/"
+          manifest_name = root + "integration/source-baseline.json"
+          with ZipFile(archive) as z:
+              if z.testzip() is not None:
+                  raise SystemExit("ERROR: ZIP integrity failure")
+              manifest = json.loads(z.read(manifest_name))
+              assert manifest["distribution"] == "ruble-core-node-1.0.1-h7000-integration3"
+              assert manifest["mainnet_auxpow_activation_height"] == 7000
+              entries = manifest["entries"]
+              assert len(entries) == 2475, "Unexpected file count"
+              zip_files = set(z.namelist())
+              assert len(zip_files) == 2476, "Unexpected archive entries"
+              expected_zip_files = {manifest_name}
+              for item in entries:
+                  rel = item["path"]
+                  parts = PurePosixPath(rel).parts
+                  if not parts or rel.startswith("/") or ".." in parts or "\\" in rel or ".git" in parts:
+                      raise SystemExit(f"ERROR: unsafe path: {rel}")
+                  if rel.startswith(".github/"):
+                      raise SystemExit(f"ERROR: workflow files must not come from uploaded ZIP: {rel}")
+                  zip_name = root + rel
+                  expected_zip_files.add(zip_name)
+                  data = z.read(zip_name)
+                  actual = hashlib.sha256(data).hexdigest()
+                  if actual != item["sha256"]:
+                      raise SystemExit(f"ERROR: source checksum mismatch: {rel}")
+                  mode = item["mode"]
+                  if mode not in ("100644", "100755"):
+                      raise SystemExit(f"ERROR: unexpected file mode: {rel}: {mode}")
+                  dest = Path(rel)
+                  dest.parent.mkdir(parents=True, exist_ok=True)
+                  dest.write_bytes(data)
+                  dest.chmod(0o755 if mode == "100755" else 0o644)
+              if expected_zip_files != zip_files:
+                  raise SystemExit("ERROR: manifest does not exactly match ZIP file list")
+          print("Verified 2475 of 2475 source files and extracted into repository root")
+          PY
+
+      - name: Commit verified sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "Publish Ruble Core 1.0.1 H7000 verified source and integration documentation"
+            git push origin HEAD:main
+          fi
