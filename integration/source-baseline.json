@@ -951,57 +951,57 @@
     {
       "path": "share/pixmaps/ruble.ico",
       "mode": "100644",
-      "sha256": "ad3f331f0a59b05ccd79b5afbdddca5ad34de9d37667e245258a2e7cf409c799"
+      "sha256": "47b477ffc891d7603976559712d42e2865336ab1d402cc8cc226499d52f1e81a"
     },
     {
       "path": "share/pixmaps/ruble128.png",
       "mode": "100644",
-      "sha256": "45581e89d4097a0ec32b89b5508cdd275c3a9c4d4b59105c359e2a40e38bdf47"
+      "sha256": "dd2762073e72ee836a93fd8f3835d83a3837fb3cba2c55d6b54aa719acba6716"
     },
     {
       "path": "share/pixmaps/ruble128.xpm",
       "mode": "100644",
-      "sha256": "97aa7ce8b47b78f90c0718645e931dad3dc42f8e5a643bf2c162b58265828f11"
+      "sha256": "9d65a7b4b8c164cf0ee8b28a2223582c15212e74392cce567f7a4ea37bd13564"
     },
     {
       "path": "share/pixmaps/ruble16.png",
       "mode": "100644",
-      "sha256": "63af113955d84ab3b426240430d9d989d9ed665867e4e843adb59594952ef89b"
+      "sha256": "7f96f2c50e30786723f4e6a71f3cc76eb5060cff8d0d52a5891fa01197648999"
     },
     {
       "path": "share/pixmaps/ruble16.xpm",
       "mode": "100644",
-      "sha256": "9ba3e4ac5cf934e1e6c78ec42804d6b979aa17a2fbf17d1fb7a945139bbe4d35"
+      "sha256": "f004f587a26d6bf234a5846ce76427107a1f97421d86f41d4367f26073fdc93f"
     },
     {
       "path": "share/pixmaps/ruble256.png",
       "mode": "100644",
-      "sha256": "f8f8ffc60ae324271413f714a1b43e7ba7a2322f5c9c2dddf670e83980846ae1"
+      "sha256": "b49421e587c3af72620050e78a440b7b6f7f73aed7b3e9d2e19953be84860000"
     },
     {
       "path": "share/pixmaps/ruble256.xpm",
       "mode": "100644",
-      "sha256": "68d5c10328f139a995dc92452adb4d0ac595397c4250726e753632ba554d71ee"
+      "sha256": "f9f157f0f02e787775cb05a97c5686b2bbef48956efbcec530c8d49cdd289a37"
     },
     {
       "path": "share/pixmaps/ruble32.png",
       "mode": "100644",
-      "sha256": "4c6d13b9d408aafae52422268fe7767db655d03c8fac51545c4c2a36573908d2"
+      "sha256": "c68e059d857e06a384f43da13968717e7e883f7ff6b13859ba45e936239f161d"
     },
     {
       "path": "share/pixmaps/ruble32.xpm",
       "mode": "100644",
-      "sha256": "d897e403278e2245562cbda57987a93e7fdfa610b95007e657c4ff2c2ead9f1a"
+      "sha256": "4b81fa33c3ef02c2325553160b5dd0f1b2cd2327f767fb1925d4d3679ee6f489"
     },
     {
       "path": "share/pixmaps/ruble64.png",
       "mode": "100644",
-      "sha256": "4912a828e9788c8a1f73a19e7d2f778ca2cb914a0e19b08703a0265ba445f757"
+      "sha256": "7174125cb888007424527327e9a8f359e8b4132ae93bd494f4be9bd817c7d707"
     },
     {
       "path": "share/pixmaps/ruble64.xpm",
       "mode": "100644",
-      "sha256": "5f31b52ffb40150bd37da5f5750c6bffa24163eb1b5680017923388d96c626d5"
+      "sha256": "d146a221c72e1c08d663f4f039b06df6582ba01ac08eafa3c8eedf34fff2c7f7"
     },
     {
       "path": "share/qt/Info.plist.in",
@@ -5881,17 +5881,17 @@
     {
       "path": "src/qt/res/icons/ruble.icns",
       "mode": "100644",
-      "sha256": "00276b9bf06d9ef5e78e6940d1bb2742a08a918a0b75593d43aa4314a9b6cebd"
+      "sha256": "cea02070f62765928ef2edeb392cf45c7b4d228ec5f42090adff80a8a98e75c7"
     },
     {
       "path": "src/qt/res/icons/ruble.ico",
       "mode": "100644",
-      "sha256": "ad3f331f0a59b05ccd79b5afbdddca5ad34de9d37667e245258a2e7cf409c799"
+      "sha256": "47b477ffc891d7603976559712d42e2865336ab1d402cc8cc226499d52f1e81a"
     },
     {
       "path": "src/qt/res/icons/ruble.png",
       "mode": "100644",
-      "sha256": "5fa831040fd8849581b1af9ee0026bc2aeabbfab4f7c9c08f0a757e7e06cee73"
+      "sha256": "56964355093f629fc068ab2286ce5f48c25369dbfc34433bd1396bf31b754ba6"
     },
     {
       "path": "src/qt/res/icons/ruble_signet.ico",
@@ -6041,7 +6041,7 @@
     {
       "path": "src/qt/res/src/ruble.svg",
       "mode": "100644",
-      "sha256": "0b41561ee790d2a04fbdbc4666a3a48bd3f1b2c7a0cfe63ed8b40d6efe16ad0e"
+      "sha256": "909833e4f40a185dc83184bb27cc378bc723412117f38c6a1a3fcbd6f2044dbb"
     },
     {
       "path": "src/qt/res/src/spinner.png",
