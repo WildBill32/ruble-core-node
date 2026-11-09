@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - RUBLE-INTEGRATION-20260908-R1.zip
-      - .github/workflows/publish-source-from-zip.yml
   workflow_dispatch:
 
 permissions:
@@ -36,7 +35,7 @@ jobs:
           from zipfile import ZipFile
 
           archive = Path("RUBLE-INTEGRATION-20260908-R1.zip")
-          expected_hash = "50f7f54f6aa6d1c8750dcf4c3e3756fdcef1e1ad9b7ab741afce8ea5299474e7"
+          expected_hash = "3a50e5257997ee63255ea130acf8fd8e0e4133f2fc09c4d91ff451cf7686485b"
           if not archive.is_file():
               raise SystemExit("ERROR: upload RUBLE-INTEGRATION-20260908-R1.zip first")
           actual_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
