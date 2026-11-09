@@ -20,6 +20,9 @@ jobs:
              'SITE':'https://rublecore.org/ruble-logo.png',
              'RELEASES':'https://raw.githubusercontent.com/WildBill32/ruble-core-releases/main/assets/ruble.png',
              'WEB_WALLET':'https://wallet.rublecore.org/brand/ruble-logo-144.webp',
+             'EXPLORER':'https://explorer.rublecore.org/brand/ruble-logo-v2-96.webp',
+             'POOL':'https://pool.rublecore.org/assets/ruble-core-cz-logo-v1-0-6-r1-160.png',
+             'GAMES':'https://games.rublecore.org/ruble-core-logo.png',
           }
           for name,url in urls.items():
               try:
