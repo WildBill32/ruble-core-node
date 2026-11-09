@@ -131,18 +131,14 @@ jobs:
               z.writestr(zi,manifest_path.read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
           tmp.replace(archive)
           sha=hashlib.sha256(archive.read_bytes()).hexdigest()
-          workflow=Path('.github/workflows/publish-source-from-zip.yml')
-          script=workflow.read_text()
-          replacement="expected_hash = \""+sha+"\""
-          script,n=re.subn(r'expected_hash = "[a-f0-9]{64}"',lambda m:replacement,script)
-          if n!=1:
-              raise SystemExit('STOP: original ZIP publication workflow checksum not found')
-          workflow.write_text(script)
+          expected_new_sha='3a50e5257997ee63255ea130acf8fd8e0e4133f2fc09c4d91ff451cf7686485b'
+          if sha!=expected_new_sha:
+              raise SystemExit('STOP: unexpected branded archive checksum: '+sha)
           print('New public archive checksum:',sha)
           PY
           python -B integration/verify-source.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A share/pixmaps src/qt/res/icons/ruble.png src/qt/res/icons/ruble.ico src/qt/res/icons/ruble.icns src/qt/res/src/ruble.svg integration/source-baseline.json RUBLE-INTEGRATION-20260908-R1.zip .github/workflows/publish-source-from-zip.yml
+          git add -A share/pixmaps src/qt/res/icons/ruble.png src/qt/res/icons/ruble.ico src/qt/res/icons/ruble.icns src/qt/res/src/ruble.svg integration/source-baseline.json RUBLE-INTEGRATION-20260908-R1.zip
           git commit -m "Replace legacy Ruble Core artwork with official multicolor logo"
           git push origin HEAD:main
