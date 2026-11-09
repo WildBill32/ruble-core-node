@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - RUBLE-INTEGRATION-20260908-R1.zip
+      - .github/workflows/publish-source-from-zip.yml
   workflow_dispatch:
 
 permissions:
@@ -77,6 +78,11 @@ jobs:
                   dest.chmod(0o755 if mode == "100755" else 0o644)
               if expected_zip_files != zip_files:
                   raise SystemExit("ERROR: manifest does not exactly match ZIP file list")
+              # Keep the signed-off source manifest alongside the published files.
+              manifest_output = Path("integration/source-baseline.json")
+              manifest_output.parent.mkdir(parents=True, exist_ok=True)
+              manifest_output.write_bytes(z.read(manifest_name))
+              manifest_output.chmod(0o644)
           print("Verified 2475 of 2475 source files and extracted into repository root")
           PY
 
