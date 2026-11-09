@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Provisional blue-and-gold Ruble Core design study.
+  This file is not used by release packaging and is not an approved release mark.
+  Copyright (c) 2026 The Ruble Core developers.
+  Distributed under the MIT software license.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="background" x1="180" y1="120" x2="850" y2="920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#244f73"/>
+      <stop offset="1" stop-color="#10283e"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="260" y1="160" x2="760" y2="880" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd978"/>
+      <stop offset="1" stop-color="#d89b27"/>
+    </linearGradient>
+  </defs>
+  <circle cx="512" cy="512" r="488" fill="url(#background)"/>
+  <circle cx="512" cy="512" r="438" fill="none" stroke="url(#ring)" stroke-width="34"/>
+  <text x="512" y="716"
+        fill="#ffffff"
+        font-family="DejaVu Sans, sans-serif"
+        font-size="590"
+        font-weight="700"
+        text-anchor="middle">₽</text>
+</svg>

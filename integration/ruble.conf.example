@@ -1,0 +1,15 @@
+# New integrator node only. RPC uses the local authentication cookie.
+chain=main
+server=1
+listen=1
+port=33888
+rpcport=33887
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+# Keep historical transactions available to an exchange/indexing backend.
+txindex=1
+prune=0
+# Source bootstrap peer; availability must be checked during sync.
+addnode=pool.rublecore.org:33888
+# Add your locally generated rpcauth line only if cookie auth is unsuitable.
+# Never place passwords, funded wallets or keys in this repository.

@@ -1,0 +1,23 @@
+/* XPM */
+static const char *ruble16[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 2 1",
+"  c None",
+"R c #E63946",
+"                ",
+"                ",
+"       RR       ",
+"     RRRRRR     ",
+"    RRRRRR R    ",
+"   R R   RR R   ",
+"  R  R   RR RR  ",
+"  RRRRRRRR   R  ",
+"  RRRRRRR    R  ",
+"   RRRRR    RR  ",
+"   RRRRR    R   ",
+"    RR     R    ",
+"     RR  RR     ",
+"       RRR      ",
+"                ",
+"                "
+};

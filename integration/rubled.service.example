@@ -1,0 +1,23 @@
+[Unit]
+Description=Ruble Core integration node
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ruble
+Group=ruble
+UMask=0077
+ExecStart=/opt/ruble/bin/rubled -datadir=/var/lib/ruble -conf=/etc/ruble/ruble.conf -daemon=0
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=300
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/ruble
+
+[Install]
+WantedBy=multi-user.target
