@@ -64,7 +64,8 @@ jobs:
               rgb=Image.new('RGBA',img.size,(0,0,0,0))
               rgb.alpha_composite(img)
               quant=rgb.convert('RGB').quantize(colors=255,method=Image.Quantize.MEDIANCUT)
-              pal=quant.getpalette()
+              pal=quant.getpalette() or []
+              pal.extend([0]*max(0,768-len(pal)))
               index=quant.load()
               codes=[a+b for a in alphabet for b in alphabet][:256]
               entries=[]
